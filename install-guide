@@ -1,0 +1,20 @@
+
+
+Installation guide to Basic-Bot
+
+Move both db.sqlite to the same folder as the basicbot|Reedeht#0001.py
+
+
+DEPENDENCIES INSTALLATION (LINUX ONLY)
+
+All Distros
+pip install discord.py
+
+Arch / Manjaro / Archo
+sudo pacman -S sqlite
+sudo pacman -S sqlitebrowsersq
+
+Ubuntu / Debian
+sudo apt-get install sqlite3
+sudo apt-get install sqlitebrowser
+
