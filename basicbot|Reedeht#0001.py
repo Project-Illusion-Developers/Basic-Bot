@@ -11,7 +11,7 @@
 ####################CONTROL PANEL####################
 ####################CONTROL PANEL####################
 
-token = 'ENTER TOKEN HERE' #Get a token here: https://discord.com/developers/applications
+token = 'YOUR TOKEN HERE' #Get a token here: https://discord.com/developers/applications
 prefix = 'b' #Change prefix here
 
 ####################CONTROL PANEL####################
@@ -54,6 +54,7 @@ async def help(ctx):
     embed.add_field(name=f"{prefix}name", value="Renames yourself", inline=False)
     embed.add_field(name=f"{prefix}update", value="Gets your funds", inline=False)
     embed.add_field(name=f"{prefix}stats", value="Displays your stats", inline=False)
+    embed.add_field(name=f"{prefix}buy-factory / factory", value="Adds more factories", inline=False)
     await ctx.send(embed=embed)
 
 @client.event
@@ -142,62 +143,30 @@ async def factory(ctx):
         cur.execute(f"SELECT money FROM main WHERE id = {ctx.message.author.id}")
         bux = cur.fetchone()
         bux = str(bux)
-        bux = bux[2:-3]
+        bux = bux[1:-2]
         bux = int(bux)
         cur.execute(f"SELECT income FROM main WHERE id = {ctx.message.author.id}")
         income = cur.fetchone()
         income = str(income)
-        income = income[2:-3]
+        income = income[1:-2]
         income = int(income)
-        newbux = bux - 10
-        newpop = pop + 1
-        query = """Update main set money = ? where id = ?"""
-        entry = (newbux, ctx.message.author.id)
-        cur.execute(query, entry)
-        query = """Update main set income = ? where id = ?"""
-        entry = (newpop, ctx.message.author.id)
-        cur.execute(query, entry)
+        newbux = bux - 1000
+        if newbux <bux:
+            await ctx.send("Don't have enough Money's")
+        else:
+            newfac = income + 1
+            query = """Update main set money = ? where id = ?"""
+            entry = (newbux, ctx.message.author.id)
+            cur.execute(query, entry)
+            query = """Update main set income = ? where id = ?"""
+            entry = (newfac, ctx.message.author.id)
+            cur.execute(query, entry)
+            await ctx.send("You have gained 1 factory and lost 1000 money")
     if result is None:
         await ctx.send("Lol you don't exist ")
     data.commit()
     cur.close()
     data.close()
-
-@client.command(aliases=['buy-population'])
-async def pop(ctx):
-    data = sqlite3.connect('db.sqlite')
-    cur = data.cursor()
-    cur.execute(f"SELECT id FROM main WHERE id = {ctx.message.author.id}")
-    result = cur.fetchone()
-    if result is not None:
-        cur.execute(f"SELECT money FROM main WHERE id = {ctx.message.author.id}")
-        bux = cur.fetchone()
-        bux = str(bux)
-        bux = bux[2:-3]
-        bux = int(bux)
-        cur.execute(f"SELECT population FROM main WHERE id = {ctx.message.author.id}")
-        pop = cur.fetchone()
-        pop = str(pop)
-        pop = pop[2:-3]
-        pop = int(pop)
-        newbux = bux - 5
-        newpop = pop + 5
-        query = """Update main set money = ? where id = ?"""
-        entry = (newbux, ctx.message.author.id)
-        cur.execute(query, entry)
-        query = """Update main set population = ? where id = ?"""
-        entry = (newpop, ctx.message.author.id)
-        cur.execute(query, entry)
-    if result is None:
-        await ctx.send("Lol you don't exist ")
-    data.commit()
-    cur.close()
-    data.close()
-
-@client.command()
-async def buy(ctx):
-    global prefix
-    await ctx.send(f"You need a target for purchase\n{prefix}buy-population/pop\n{prefix}buy-factory")
 
 @client.command()
 async def stats(ctx):
@@ -206,6 +175,7 @@ async def stats(ctx):
     cur.execute(f"SELECT id FROM main WHERE id = {ctx.message.author.id}")
     result = cur.fetchone()
     if result is not None:
+
         cur.execute(f"SELECT name FROM main WHERE id = {ctx.message.author.id}")
         nam = cur.fetchone()
         nam = str(nam)
