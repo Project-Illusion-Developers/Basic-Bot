@@ -5,11 +5,17 @@
 # GITHUB LinK: https://github.com/Reedeht/Basic-Bot
 # GITHUB License General Public License
 
+# Discord Server Invite: https://discord.gg/Nf5gpN2
+
+####################CONTROL PANEL####################
+####################CONTROL PANEL####################
 ####################CONTROL PANEL####################
 
 token = 'ENTER TOKEN HERE' #Get a token here: https://discord.com/developers/applications
 prefix = 'b' #Change prefix here
 
+####################CONTROL PANEL####################
+####################CONTROL PANEL####################
 ####################CONTROL PANEL####################
 
 #                Arch ASCII Art
@@ -36,7 +42,6 @@ prefix = 'b' #Change prefix here
 import discord #discord.py
 from discord.ext import commands #commands
 import sqlite3 #sqlite3
-
 client = commands.Bot(command_prefix=prefix)
 client.remove_command('help')
 
@@ -44,16 +49,15 @@ client.remove_command('help')
 async def help(ctx):
     global prefix
     embed = discord.Embed(color=ctx.author.color, timestamp=ctx.message.created_at)
-    embed.add_field(name=f"{prefix}start", value="Starts your game", inlne=False)
-    embed.add_field(name=f"{prefix}buy", value="Allows purchasing", inlne=False)
-    embed.add_field(name=f"{prefix}name", value="Renames your nation", inlne=False)
-    embed.add_field(name=f"{prefix}update", value="Gets your funds", inlne=False)
-    embed.add_field(name=f"{prefix}stats", value="Displays your stats", inlne=False)
+    embed.add_field(name=f"{prefix}start", value="Starts your game", inline=False)
+    embed.add_field(name=f"{prefix}buy", value="Allows purchasing", inline=False)
+    embed.add_field(name=f"{prefix}name", value="Renames yourself", inline=False)
+    embed.add_field(name=f"{prefix}update", value="Gets your funds", inline=False)
+    embed.add_field(name=f"{prefix}stats", value="Displays your stats", inline=False)
     await ctx.send(embed=embed)
 
 @client.event
 async def on_ready():
-    global prefix
     print("online")
     await client.change_presence(status=discord.Status.online, activity=discord.Game(f"{prefix}help | 1 hour challenge ⏱"))
 
@@ -110,13 +114,15 @@ async def update(ctx):
         cur.execute(f"SELECT money FROM main WHERE id = {ctx.message.author.id}")
         bux = cur.fetchone()
         bux = str(bux)
-        bux = bux[2:-3]
+        bux = bux[1:-2]
+        bux = int(bux)
         cur.execute(f"SELECT income FROM main WHERE id = {ctx.message.author.id}")
         mone = cur.fetchone()
         mone = str(mone)
-        mone = mone[2:-3]
-        damndaniel = bux + mone
-        query = """Update main set name = ? where id = ?"""
+        mone = mone[1:-2]
+        mone = int(mone)
+        damndaniel = mone + bux
+        query = """Update main set money = ? where id = ?"""
         entry = (damndaniel, ctx.message.author.id)
         cur.execute(query, entry)
         await ctx.send(f"You have gained ${damndaniel}.00!")
@@ -137,10 +143,12 @@ async def factory(ctx):
         bux = cur.fetchone()
         bux = str(bux)
         bux = bux[2:-3]
+        bux = int(bux)
         cur.execute(f"SELECT income FROM main WHERE id = {ctx.message.author.id}")
         income = cur.fetchone()
         income = str(income)
         income = income[2:-3]
+        income = int(income)
         newbux = bux - 10
         newpop = pop + 1
         query = """Update main set money = ? where id = ?"""
@@ -166,10 +174,12 @@ async def pop(ctx):
         bux = cur.fetchone()
         bux = str(bux)
         bux = bux[2:-3]
+        bux = int(bux)
         cur.execute(f"SELECT population FROM main WHERE id = {ctx.message.author.id}")
         pop = cur.fetchone()
         pop = str(pop)
         pop = pop[2:-3]
+        pop = int(pop)
         newbux = bux - 5
         newpop = pop + 5
         query = """Update main set money = ? where id = ?"""
@@ -194,37 +204,29 @@ async def stats(ctx):
     data = sqlite3.connect('db.sqlite')
     cur = data.cursor()
     cur.execute(f"SELECT id FROM main WHERE id = {ctx.message.author.id}")
-    embed = discord.Embed(color=ctx.author.color, timestamp=ctx.message.created_at)
     result = cur.fetchone()
     if result is not None:
-        embed.add_field(name="Ruler", value=f"<@{ctx.message.author.id}>")
         cur.execute(f"SELECT name FROM main WHERE id = {ctx.message.author.id}")
         nam = cur.fetchone()
         nam = str(nam)
-        nam = nam[1:-2]
-        embed.add_field(name="Name", value=nam, inline=False)
+        nam = nam[2:-3]
         cur.execute(f"SELECT money FROM main WHERE id = {ctx.message.author.id}")
         bux = cur.fetchone()
         bux = str(bux)
-        bux = bux[2:-3]
-        embed.add_field(name="Money", value=bux, inline=False)
+        bux = bux[1:-2]
         cur.execute(f"SELECT income FROM main WHERE id = {ctx.message.author.id}")
         income = cur.fetchone()
         income = str(income)
         income = income[1:-2]
-        embed.add_field(name="Income", value=income, inline=False)
         cur.execute(f"SELECT population FROM main WHERE id = {ctx.message.author.id}")
         pop = cur.fetchone()
         pop = str(pop)
         pop = pop[1:-2]
-        embed.add_field(name="Population", value=pop, inline=False)
-        embed.set_footer(text="help I am suffering")
-        await ctx.send(embed=embed)
+        await ctx.send(f"**Name**\n{nam}\n\n**Money**\n{bux}\n\n**Income**\n{income}\n\n**Population**\n{pop}")
     if result is None:
         await ctx.send("Lol you don't exist ")
     data.commit()
     cur.close()
     data.close()
-
 
 client.run(token)
