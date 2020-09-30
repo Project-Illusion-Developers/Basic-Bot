@@ -36,6 +36,7 @@ prefix = 'b' #Change prefix here
 import discord #discord.py
 from discord.ext import commands #commands
 import sqlite3 #sqlite3
+
 client = commands.Bot(command_prefix=prefix)
 client.remove_command('help')
 
@@ -52,8 +53,9 @@ async def help(ctx):
 
 @client.event
 async def on_ready():
+    global prefix
     print("online")
-    await client.change_presence(status=discord.Status.online, activity=discord.Game("chelp | 1 hour challenge ⏱"))
+    await client.change_presence(status=discord.Status.online, activity=discord.Game(f"{prefix}help | 1 hour challenge ⏱"))
 
 @client.command()
 async def start(ctx):
