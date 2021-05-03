@@ -50,11 +50,9 @@ async def help(ctx):
     global prefix
     embed = discord.Embed(color=ctx.author.color, timestamp=ctx.message.created_at)
     embed.add_field(name=f"{prefix}start", value="Starts your game", inline=False)
-    embed.add_field(name=f"{prefix}buy", value="Allows purchasing", inline=False)
-    embed.add_field(name=f"{prefix}name", value="Renames yourself", inline=False)
-    embed.add_field(name=f"{prefix}update", value="Gets your funds", inline=False)
+    embed.add_field(name=f"{prefix}collect", value="Gets your funds", inline=False)
     embed.add_field(name=f"{prefix}stats", value="Displays your stats", inline=False)
-    embed.add_field(name=f"{prefix}buy-factory / factory", value="Adds more factories", inline=False)
+    embed.add_field(name=f"{prefix}buy-processor / processor", value="Adds more processor", inline=False)
     await ctx.send(embed=embed)
 
 @client.event
@@ -85,28 +83,7 @@ async def start(ctx):
     data.close()
 
 @client.command()
-async def name(ctx):
-    data = sqlite3.connect('db.sqlite')
-    cur = data.cursor()
-    msg = ctx.message.content
-    prefix_used = ctx.prefix
-    alias_used = ctx.invoked_with
-    text = msg[len(prefix_used) + len(alias_used):]
-    cur.execute(f"SELECT id FROM main WHERE id = {ctx.message.author.id}")
-    result = cur.fetchone()
-    if result is not None:
-        query = """Update main set name = ? where id = ?"""
-        entry = (text, ctx.message.author.id)
-        cur.execute(query, entry)
-        await ctx.send(f"Updated your name to {text}")
-    if result is None:
-        await ctx.send("Lol you don't exist ")
-    data.commit()
-    cur.close()
-    data.close()
-
-@client.command()
-async def update(ctx):
+async def collect(ctx):
     data = sqlite3.connect('db.sqlite')
     cur = data.cursor()
     cur.execute(f"SELECT id FROM main WHERE id = {ctx.message.author.id}")
@@ -133,8 +110,8 @@ async def update(ctx):
     cur.close()
     data.close()
 
-@client.command(aliases=['buy-factory'])
-async def factory(ctx):
+@client.command(aliases=['buy-processor'])
+async def processor(ctx):
     data = sqlite3.connect('db.sqlite')
     cur = data.cursor()
     cur.execute(f"SELECT id FROM main WHERE id = {ctx.message.author.id}")
@@ -161,7 +138,7 @@ async def factory(ctx):
             query = """Update main set income = ? where id = ?"""
             entry = (newfac, ctx.message.author.id)
             cur.execute(query, entry)
-            await ctx.send("You have gained 1 factory and lost 1000 money")
+            await ctx.send("You have gained 1 processor and lost 1000 money")
     if result is None:
         await ctx.send("Lol you don't exist ")
     data.commit()
@@ -176,11 +153,6 @@ async def stats(ctx):
     cur.execute(f"SELECT id FROM main WHERE id = {ctx.message.author.id}")
     result = cur.fetchone()
     if result is not None:
-
-        cur.execute(f"SELECT name FROM main WHERE id = {ctx.message.author.id}")
-        nam = cur.fetchone()
-        nam = str(nam)
-        nam = nam[2:-3]
         cur.execute(f"SELECT money FROM main WHERE id = {ctx.message.author.id}")
         bux = cur.fetchone()
         bux = str(bux)
@@ -189,11 +161,7 @@ async def stats(ctx):
         income = cur.fetchone()
         income = str(income)
         income = income[1:-2]
-        cur.execute(f"SELECT population FROM main WHERE id = {ctx.message.author.id}")
-        pop = cur.fetchone()
-        pop = str(pop)
-        pop = pop[1:-2]
-        await ctx.send(f"**Name**\n{nam}\n\n**Money**\n{bux}\n\n**Income**\n{income}\n\n**Population**\n{pop}")
+        await ctx.send(f"**Money**\n{bux}\n\n**Income**\n{income}")
     if result is None:
         await ctx.send("Lol you don't exist ")
     data.commit()
